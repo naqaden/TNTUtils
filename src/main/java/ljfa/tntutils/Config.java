@@ -93,10 +93,13 @@ public class Config {
                 try {
                     meta = Integer.parseInt(metaStr);
                 } catch(NumberFormatException ex) {
-                    throw new InvalidConfigValueException("destructionBlackOrWhitelist: Invalid number format: " + metaStr, ex);
+                    logger.error("destructionBlackOrWhitelist: Invalid number format: " + metaStr, ex);
+                    continue;
                 }
-                if(meta < 0 || meta >= 16)
-                    throw new InvalidConfigValueException("destructionBlackOrWhitelist: Metadata out of range: " + metaStr);
+                if(meta < 0 || meta >= 16) {
+                    logger.error("destructionBlackOrWhitelist: Metadata out of range: " + metaStr);
+                    continue;
+                }
                 
                 blockname = str.substring(0, ind);
                 metamask = 1 << meta;
@@ -108,8 +111,10 @@ public class Config {
             }
             
             Block block = Block.REGISTRY.getObject(new ResourceLocation(blockname));
-            if(block == Blocks.AIR || block == null)
-                throw new InvalidConfigValueException("destructionBlackOrWhitelist: Invalid block name: " + blockname);
+            if(block == Blocks.AIR || block == null) {
+                logger.error("destructionBlackOrWhitelist: Invalid block name: " + blockname);
+                continue;
+            }
             
             if(!blackWhiteList.containsKey(block))
                 blackWhiteList.put(block, metamask);
@@ -135,15 +140,17 @@ public class Config {
             String valueStr = str.substring(ind+1);
             
             Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
-            if(block == Blocks.AIR || block == null)
-                throw new InvalidConfigValueException("blockResistances: Invalid block name: " + blockName);
+            if(block == Blocks.AIR || block == null) {
+                logger.error("blockResistances: Invalid block name: " + blockName);
+                return;
+            }
             
             try {
                 float resist = Float.parseFloat(valueStr);
                 block.setResistance(resist);
                 logger.debug("Changed resistance of %s to %g", blockName, resist);
             } catch(NumberFormatException ex) {
-                throw new InvalidConfigValueException("blockResistances: Invalid number format: " + valueStr, ex);
+                logger.error("blockResistances: Invalid number format: " + valueStr, ex);
             }
         }
     }
